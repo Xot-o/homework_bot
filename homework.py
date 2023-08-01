@@ -42,7 +42,7 @@ def send_message(bot, message):
             chat_id=TELEGRAM_CHAT_ID,
             text=message
         )
-    except telegram.error.TelegramError as error:
+    except telegram.error.TelegramError:
         logging.error('Ошибка отправки сообщения в Telegram.')
     else:
         logging.info('Телеграм сообщение отправлено.')
