@@ -59,9 +59,9 @@ def get_api_answer(timestamp):
     except Exception as error:
         message = f'Ошибка в запросе к API: {error}'
         logging.error(message)
-        return None
+        raise TypeError(message)
     if response.status_code != HTTPStatus.OK:
-        raise Exception('API вернула код, не соответствующий 200')
+        raise TypeError('API вернула код, не соответствующий 200')
     return response.json()
 
 
@@ -70,23 +70,14 @@ def check_response(response):
     logging.info(
         'Приступаю к проверке ответа от API.'
     )
-    api_type_error = 'Ошибка в типе ответа API.'
-    api_empty_answer = 'Пустой ответ от API.'
-    no_int = '"Current_date" не является числом.'
-    no_list = '"Homeworks" не является списком.'
-
     if not isinstance(response, dict):
-        logging.error(api_type_error)
-        raise TypeError(api_type_error)
+        raise TypeError('Ошибка в типе ответа API.')
     if 'homeworks' not in response or 'current_date' not in response:
-        logging.error(api_empty_answer)
-        raise KeyError(api_empty_answer)
+        raise KeyError('Пустой ответ от API.')
     if not isinstance(response['current_date'], int):
-        logging.error(no_int)
-        raise TypeError(no_int)
+        raise TypeError('"Current_date" не является числом.')
     if not isinstance(response['homeworks'], list):
-        logging.error(no_list)
-        raise TypeError(no_list)
+        raise TypeError('"Homeworks" не является списком.')
 
 
 def parse_status(homework):
@@ -99,7 +90,6 @@ def parse_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
     if homework_status not in HOMEWORK_VERDICTS:
-        logging.error('Неожиданный статус домашней работы.')
         raise ValueError(
             'В ответе от API пришел неизвестный статус работы,'
             f' status = {homework_status}.'
@@ -110,19 +100,8 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format=(
-            '%(asctime)s, [%(levelname)s] -'
-            '(%(filename)s).%(funcName)s:%(lineno)d - %(message)s'
-        ),
-        handlers=[
-            logging.FileHandler(f'{BASE_DIR}/output.log'),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
     if not check_tokens():
-        message = ''
+        message = 'Отсутствуют необходимые токены для работы программы.'
         logging.critical(message)
         sys.exit(message)
 
@@ -146,7 +125,7 @@ def main():
                 current_report = new_request
                 timestamp = new_request.get('current_date')
             else:
-                logging.info('Статус обновлен.')
+                logging.info('Статус не изменился.')
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
@@ -161,4 +140,15 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=(
+            '%(asctime)s, [%(levelname)s] -'
+            '(%(filename)s).%(funcName)s:%(lineno)d - %(message)s'
+        ),
+        handlers=[
+            logging.FileHandler(f'{BASE_DIR}/output.log'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
     main()
