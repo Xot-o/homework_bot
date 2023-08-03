@@ -8,7 +8,7 @@ import telegram
 import requests
 from dotenv import load_dotenv
 
-from .exceptions import APIResponseError, APIRequestError
+from exceptions import APIResponseError, APIRequestError
 
 load_dotenv()
 
