@@ -8,6 +8,8 @@ import telegram
 import requests
 from dotenv import load_dotenv
 
+from .exceptions import APIResponseError, APIRequestError
+
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -58,10 +60,9 @@ def get_api_answer(timestamp):
         )
     except Exception as error:
         message = f'Ошибка в запросе к API: {error}'
-        logging.error(message)
-        raise TypeError(message)
+        raise APIRequestError(message)
     if response.status_code != HTTPStatus.OK:
-        raise TypeError('API вернула код, не соответствующий 200')
+        raise APIResponseError('API вернула код, не соответствующий 200')
     return response.json()
 
 
