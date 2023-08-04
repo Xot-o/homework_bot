@@ -59,8 +59,7 @@ def get_api_answer(timestamp):
             params={'from_date': timestamp}
         )
     except Exception as error:
-        message = f'Ошибка в запросе к API: {error}'
-        raise APIRequestError(message)
+        raise APIRequestError(f'Ошибка в запросе к API: {error}')
     if response.status_code != HTTPStatus.OK:
         raise APIResponseError('API вернула код, не соответствующий 200')
     return response.json()
